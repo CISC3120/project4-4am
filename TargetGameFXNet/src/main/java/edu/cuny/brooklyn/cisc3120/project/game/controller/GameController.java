@@ -17,6 +17,7 @@ import edu.cuny.brooklyn.cisc3120.project.game.net.StatusBroadcaster;
 import edu.cuny.brooklyn.cisc3120.project.game.utils.I18n;
 import edu.cuny.brooklyn.cisc3120.project.game.model.Shot;
 import edu.cuny.brooklyn.cisc3120.project.game.model.DecisionWrapper.UserDecision;
+import edu.cuny.brooklyn.cisc3120.project.game.model.GameStatistics;
 import edu.cuny.brooklyn.cisc3120.project.game.model.GameStatistics.StatNameValue;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -81,6 +82,14 @@ public class GameController {
     
     private StatusBroadcaster statusBroadCaster;
     
+    /*
+     * Added to the program
+     */
+    
+    private int maximumGuessThreshold = 9;  // 10 when counting from 0
+    
+    private int numOfCurrentGuesses = 0;
+    
     public void setStage(Stage stage) {
         this.stage = stage;
         this.stage.setOnCloseRequest(event -> {
@@ -128,16 +137,45 @@ public class GameController {
         gameStatTableView.getColumns().set(0,  tableViewStatName);
         gameStatTableView.getColumns().set(1,  tableViewStatValue);
         playersOnLineVbox.setVisible(true);
+        
+        targetGame.getGameStatistics().setNumOfTargetsMade(
+        		targetGame.getGameStatistics().getNumOfTargetsMade()+1);
+        gameStatTableView.setItems(targetGame.getGameStatistics().toObservableList());
+        
+        
     }
 
     @FXML
     void openGame(ActionEvent event) {
         LOGGER.debug("openning a saved game: not implemented yet");
+        /*
+         * Load game data from file
+         * Search for the game file specified by the user
+         * If the file is not found, prompt message stating that no file found
+         * Else, load the statistics to the game
+         * reads from the file until no more content
+         * set values to corresponding areas
+         * The format in which the file is to be loaded
+         * (numOfTargetsShot -> numOfShotsFired -> numOfTargetsMade -> 
+         * numOfRoundsWon -> numOfRoundsPlayed -> accuracy)
+         */
     }
 
     @FXML
     void saveTheGame(ActionEvent event) {
         LOGGER.debug("saving the game: not implemented yet");
+        /*
+         * Save game data to a file
+         * Search for the file first
+         * If found, overwrite the file with new content
+         * Else, create a new save file for the user
+         * all output is directed to the save file
+         * get the all the values of the statistics and write them to save file
+         * only the values, not the label (int, doubles)
+         * The format in which the file is to be saved in to avoid errors when loading
+         * (numOfTargetsShot -> numOfShotsFired -> numOfTargetsMade -> 
+         * numOfRoundsWon -> numOfRoundsPlayed -> accuracy)
+         */
     }
     
     private void exitGame(Event event) {
@@ -199,12 +237,80 @@ public class GameController {
             alert.showAndWait();
             clearTarget();
             addTarget(gameState, targetCanvas);
+            
+            /*
+             * Game statistic to be updated here
+             */
+            numOfCurrentGuesses = 0; //If target is hit, reset the numOfCurrentGuess to 0
+            
+            targetGame.getGameStatistics().setNumOfTargetsShot(
+            		targetGame.getGameStatistics().getNumOfTargetsShot()+1);  //Updates the numOfTargetsShot
+            
+            targetGame.getGameStatistics().setNumOfShotsFired(
+            		targetGame.getGameStatistics().getNumOfShotsFired()+1);   //Updates the numOfShotsFired
+            
+            targetGame.getGameStatistics().setNumOfTargetsMade(
+            		targetGame.getGameStatistics().getNumOfTargetsMade()+1);   //Updates the numOfTargetsMade
+            
+            targetGame.getGameStatistics().setNumOfRoundsWon(
+            		targetGame.getGameStatistics().getNumOfRoundsWon()+1);   //Updates the numOfRoundsWon
+            
+            targetGame.getGameStatistics().setNumOfRoundsPlayed(
+            		targetGame.getGameStatistics().getNumOfRoundsPlayed()+1);   //Updates the numOfRoundsPlayed
+            
+            targetGame.getGameStatistics().updateAccuracy();   //Updates the accuracy
+            
+            gameStatTableView.setItems(targetGame.getGameStatistics().toObservableList());   //Adds changes made to tableview
+
+            
         } else {
-            Alert alert = new Alert(AlertType.INFORMATION
+            
+            
+            if(numOfCurrentGuesses == maximumGuessThreshold) {
+
+            	//Alert message indicates when player loses
+            	Alert alert = new Alert(AlertType.INFORMATION
+                        , "Try again", ButtonType.CLOSE);
+                alert.setTitle(APP_TITLE + ": Next round");
+                alert.setHeaderText("You lose this round");                
+                alert.showAndWait();
+            	
+                clearTarget();   //Clears target 
+                addTarget(gameState, targetCanvas);   //Adds a new target
+            	
+            	numOfCurrentGuesses = 0;   //When the maximumGuessThreshold is reached, reset numOfCurrentGuesses to 0
+            	
+            	targetGame.getGameStatistics().setNumOfShotsFired(
+                		targetGame.getGameStatistics().getNumOfShotsFired()+1);   //Updates the numOfShotsFired
+            	
+            	targetGame.getGameStatistics().setNumOfTargetsMade(
+                		targetGame.getGameStatistics().getNumOfTargetsMade()+1);   //Updates the numOfTargetsMade
+            	
+            	targetGame.getGameStatistics().setNumOfRoundsPlayed(
+            		targetGame.getGameStatistics().getNumOfRoundsPlayed()+1);   //Updates the numOfRoundsPlayed
+            	
+                targetGame.getGameStatistics().updateAccuracy();   //Updates the accuracy
+            	
+                gameStatTableView.setItems(targetGame.getGameStatistics().toObservableList()); //Adds changes made to tableview
+            }
+            else {
+            	Alert alert = new Alert(AlertType.INFORMATION
                     , I18n.getBundle().getString("uMissedTarget"), ButtonType.CLOSE);
             alert.setTitle(APP_TITLE + ":" + I18n.getBundle().getString("targetMissed"));
             alert.setHeaderText(I18n.getBundle().getString("lousyShooter"));                
             alert.showAndWait();
+
+            numOfCurrentGuesses++;   //If shot misses, increment the numOfCurrentGuesses by 1
+            
+            targetGame.getGameStatistics().setNumOfShotsFired(
+            		targetGame.getGameStatistics().getNumOfShotsFired()+1);   //Updates the numOfShotsFired
+            
+            targetGame.getGameStatistics().updateAccuracy();   //Updates the accuracy
+            
+            gameStatTableView.setItems(targetGame.getGameStatistics().toObservableList()); //Adds changes made to tableview
+            }
+            
+           
         }
    }
     
@@ -293,5 +399,5 @@ public class GameController {
         stage.setTitle(I18n.getBundle().getString(TargetGameApp.APP_TITLE_KEY));
         
         LOGGER.debug(targetGame.getTarget() == null? "No target set yet.":targetGame.getTarget().toString());
-    } 
+    }
 }

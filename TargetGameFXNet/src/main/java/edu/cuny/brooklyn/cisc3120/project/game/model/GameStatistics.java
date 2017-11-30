@@ -9,7 +9,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public class GameStatistics {
+public class GameStatistics{
     private int numOfTargetsShot;
     private int numOfShotsFired;
     private int numOfTargetsMade;
@@ -50,12 +50,32 @@ public class GameStatistics {
         this.numOfTargetsMade = numOfTargetsMade;
     }
 
+    public int getNumOfRoundsWon(){
+    	return numOfRoundsWon;
+    }
+    
+    public void setNumOfRoundsWon(int numOfRoundsWon) {
+    	this.numOfRoundsWon = numOfRoundsWon;
+    }
+    
+    public int getNumOfRoundsPlayed() {
+    	return numOfRoundsPlayed;
+    }
+    
+    public void setNumOfRoundsPlayed(int numOfRoundsPlayed) {
+    	this.numOfRoundsPlayed = numOfRoundsPlayed;
+    }
+    
     public void updateAccuracy() {
         if (numOfShotsFired > 0) {
             accuracy = (double)(numOfTargetsShot) / (double)numOfShotsFired;
         } else {
             accuracy = 0.0;
         }
+    }
+    
+    public void setAccuracy(double accuracy) {
+    	this.accuracy = accuracy;
     }
     
     public double getAccuracy() {
