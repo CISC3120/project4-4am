@@ -1,12 +1,19 @@
 package edu.cuny.brooklyn.cisc3120.project.game.model;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
 public class TargetGame {
     private static Logger LOGGER = LoggerFactory.getLogger(TargetGame.class);
@@ -40,8 +47,49 @@ public class TargetGame {
         this.gameStateChanged = gameStateChanged;
     }
 
-    public void saveTheGame() throws FileNotFoundException, IOException {
+    public void saveTheGame(Window stage) throws FileNotFoundException, IOException {
         // TODO Auto-generated method stub
+    	
+    	/*
+         * Save game data to a file
+         * Search for the file first
+         * If found, overwrite the file with new content
+         * Else, create a new save file for the user
+         * all output is directed to the save file
+         * get the all the values of the statistics and write them to save file
+         * only the values, not the label (int, doubles)
+         * The format in which the file is to be saved in to avoid errors when loading
+         * (numOfTargetsShot -> numOfShotsFired -> numOfTargetsMade -> 
+         * numOfRoundsWon -> numOfRoundsPlayed -> accuracy)
+         */
+    	
+    	 try{
+        	 FileChooser fileChooser = new FileChooser();
+            // Create new file
+            String content =  this.getGameStatistics().getNumOfTargetsShot()+"\t"
+            				+this.getGameStatistics().getNumOfShotsFired()+"\t"
+            				+this.getGameStatistics().getNumOfTargetsMade()+"\t"
+            				+this.getGameStatistics().getNumOfRoundsWon()+"\t"
+            				+this.getGameStatistics().getNumOfRoundsPlayed()+"\t"
+            				+this.getGameStatistics().getAccuracy();
+
+            	
+				File newFile =  fileChooser.showSaveDialog(stage);
+            	FileWriter fw = new FileWriter(newFile);
+                BufferedWriter bw = new BufferedWriter(fw);
+
+                // Write in file
+                bw.write(content);
+
+                // Close connection
+                bw.close();
+            	
+    	 }
+        catch(Exception e){
+            System.out.println(e);
+        }
+        		
+        
         
     }
 

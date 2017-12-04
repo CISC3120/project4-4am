@@ -81,6 +81,7 @@ public class GameStatistics{
     public double getAccuracy() {
         return accuracy;
     }
+    
 
     public ObservableList<StatNameValue> toObservableList() {
         List<StatNameValue> listStatistics = new LinkedList<StatNameValue>();

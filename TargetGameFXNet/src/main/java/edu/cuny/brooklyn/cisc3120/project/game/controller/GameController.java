@@ -1,11 +1,15 @@
 package edu.cuny.brooklyn.cisc3120.project.game.controller;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +44,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
@@ -48,6 +54,8 @@ public class GameController {
     private final static Logger LOGGER = LoggerFactory.getLogger(GameController.class);
     
     private final static String APP_TITLE = "CISC 3120 Fall 2017: TargetGame";
+
+	private static final Shot Shot = null;
     
     @FXML
     private Canvas targetCanvas;
@@ -146,7 +154,7 @@ public class GameController {
     }
 
     @FXML
-    void openGame(ActionEvent event) {
+    void openGame(ActionEvent event) throws IOException {
         LOGGER.debug("openning a saved game: not implemented yet");
         /*
          * Load game data from file
@@ -159,29 +167,57 @@ public class GameController {
          * (numOfTargetsShot -> numOfShotsFired -> numOfTargetsMade -> 
          * numOfRoundsWon -> numOfRoundsPlayed -> accuracy)
          */
-    }
+        
+        
+        
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Resource File");
+        File saveFile = fileChooser.showOpenDialog(stage);
+        
+       
+        
+        Scanner copy = new Scanner(saveFile);
+        String store = copy.nextLine();
+        // printing for testing purpose, will delete later
+        System.out.println(store);
+        String[] staticsload = store.split("\t");
+        for(String x : staticsload) {
+        	System.out.print(x);
+        }
+        
+        /*(numOfTargetsShot -> numOfShotsFired -> numOfTargetsMade -> 
+        * numOfRoundsWon -> numOfRoundsPlayed -> accuracy)
+        */
+        this.newGame(event);
+        
+        //need help ??
+//        targetGame.getGameStatistics().setNumOfTargetsShot((int)Integer.parseInt(staticsload[0]));
+//        targetGame.getGameStatistics().setNumOfShotsFired((int)Integer.parseInt(staticsload[1]));
+//        targetGame.getGameStatistics().setNumOfTargetsMade((int)Integer.parseInt(staticsload[2]));
+//        targetGame.getGameStatistics().setNumOfRoundsWon((int)Integer.parseInt(staticsload[3]));
+//        targetGame.getGameStatistics().setNumOfRoundsPlayed((int)Integer.parseInt(staticsload[4]));
+//        targetGame.getGameStatistics().setAccuracy((double)Double.parseDouble(staticsload[5]));
+//        
+        
+       //this.processShotAction(targetGame , Shot);
+       
+        
+     }
 
     @FXML
-    void saveTheGame(ActionEvent event) {
+    void saveTheGame(ActionEvent event) throws FileNotFoundException, IOException  {
         LOGGER.debug("saving the game: not implemented yet");
-        /*
-         * Save game data to a file
-         * Search for the file first
-         * If found, overwrite the file with new content
-         * Else, create a new save file for the user
-         * all output is directed to the save file
-         * get the all the values of the statistics and write them to save file
-         * only the values, not the label (int, doubles)
-         * The format in which the file is to be saved in to avoid errors when loading
-         * (numOfTargetsShot -> numOfShotsFired -> numOfTargetsMade -> 
-         * numOfRoundsWon -> numOfRoundsPlayed -> accuracy)
-         */
+        
+        // Sei: implemented in TargetGmae, which is given by the source code
+        targetGame.saveTheGame(stage);
+           
     }
     
     private void exitGame(Event event) {
         LOGGER.debug("calling exitGame(Event event).");
         if (targetGame.isGameStateChanged()) {
             UserDecision decision = NotificationHelper.askUserDecision(new DecisionWrapper(UserDecision.CancelPendingAction));
+           
             switch (decision) {
             case CancelPendingAction:
                 event.consume();
@@ -192,7 +228,7 @@ public class GameController {
                 break;
             case SaveGame:
                 try {
-                    targetGame.saveTheGame();
+                    targetGame.saveTheGame(stage);
                     LOGGER.debug(String.format("Saved the game at %s.", targetGame.getTheGameFile().getPath()));
                     statusBroadCaster.close();
                     Platform.exit();
@@ -229,6 +265,8 @@ public class GameController {
     }
     
     private void processShotAction(TargetGame gameState, Shot shot) {
+    	
+    	
         if (gameState.getTarget().isTargetShot(shot)) {
             Alert alert = new Alert(AlertType.INFORMATION
                     , I18n.getBundle().getString("uShotTarget"), ButtonType.CLOSE);
