@@ -181,9 +181,7 @@ public class GameController {
         // printing for testing purpose, will delete later
         System.out.println(store);
         String[] staticsload = store.split("\t");
-        for(String x : staticsload) {
-        	System.out.print(x);
-        }
+       
         
         /*(numOfTargetsShot -> numOfShotsFired -> numOfTargetsMade -> 
         * numOfRoundsWon -> numOfRoundsPlayed -> accuracy)
@@ -191,15 +189,17 @@ public class GameController {
         this.newGame(event);
         
         //need help ??
-//        targetGame.getGameStatistics().setNumOfTargetsShot((int)Integer.parseInt(staticsload[0]));
-//        targetGame.getGameStatistics().setNumOfShotsFired((int)Integer.parseInt(staticsload[1]));
-//        targetGame.getGameStatistics().setNumOfTargetsMade((int)Integer.parseInt(staticsload[2]));
-//        targetGame.getGameStatistics().setNumOfRoundsWon((int)Integer.parseInt(staticsload[3]));
-//        targetGame.getGameStatistics().setNumOfRoundsPlayed((int)Integer.parseInt(staticsload[4]));
-//        targetGame.getGameStatistics().setAccuracy((double)Double.parseDouble(staticsload[5]));
-//        
+        //LOGGER.debug("staticsload[0]: " + staticsload[0]);
+        targetGame.getGameStatistics().setNumOfTargetsShot(Integer.parseInt(staticsload[0]));
+       targetGame.getGameStatistics().setNumOfShotsFired(Integer.parseInt(staticsload[1]));
+       targetGame.getGameStatistics().setNumOfTargetsMade(Integer.parseInt(staticsload[2]));
+       targetGame.getGameStatistics().setNumOfRoundsWon(Integer.parseInt(staticsload[3]));        
+       targetGame.getGameStatistics().setNumOfRoundsPlayed(Integer.parseInt(staticsload[4]));
+        targetGame.getGameStatistics().setAccuracy(Double.parseDouble(staticsload[5]));  
         
-       //this.processShotAction(targetGame , Shot);
+        gameStatTableView.setItems(targetGame.getGameStatistics().toObservableList());
+        
+      
        
         
      }
