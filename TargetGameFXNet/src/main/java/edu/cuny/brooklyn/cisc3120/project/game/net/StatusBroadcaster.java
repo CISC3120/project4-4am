@@ -30,7 +30,7 @@ public class StatusBroadcaster {
     private DatagramSocket socket;
     private byte[] buf;
     private DatagramPacket packet;
-    
+    private String msg ="";
     private int tcpPort;
     
     public StatusBroadcaster() throws IOException {
@@ -73,9 +73,10 @@ public class StatusBroadcaster {
                             if (broadcast == null)
                                 continue;
                             
-                            StatusMessage message = new StatusMessage(interfaceAddress.getAddress(), tcpPort);
+                             StatusMessage message = new StatusMessage(interfaceAddress.getAddress(), tcpPort);
+                             msg = message.toString();
                             
-                            try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+                             try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
                                     ObjectOutputStream oos = new ObjectOutputStream(baos)) {
                                 oos.writeObject(message);
                                 oos.flush();
@@ -106,5 +107,10 @@ public class StatusBroadcaster {
             socket.setReuseAddress(true);
             return socket.getLocalPort();
         }        
+    }
+    
+    public  String getStatusMessage(){
+    		
+    		return this.msg;
     }
 }

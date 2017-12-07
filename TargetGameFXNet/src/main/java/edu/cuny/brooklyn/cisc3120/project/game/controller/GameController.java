@@ -24,6 +24,8 @@ import edu.cuny.brooklyn.cisc3120.project.game.model.DecisionWrapper.UserDecisio
 import edu.cuny.brooklyn.cisc3120.project.game.model.GameStatistics;
 import edu.cuny.brooklyn.cisc3120.project.game.model.GameStatistics.StatNameValue;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -42,6 +44,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
@@ -83,6 +86,10 @@ public class GameController {
     
     @FXML
     private VBox playersOnLineVbox;
+    
+    @FXML
+    ListView list ;
+    
     
     private TargetGame targetGame = new TargetGame();
     
@@ -133,7 +140,7 @@ public class GameController {
     }
 
     @FXML
-    void newGame(ActionEvent event) {
+    void newGame(ActionEvent event) throws IOException {
         LOGGER.debug("started new game.");
         lcComboBox.setDisable(true); // don't allow users to change locale when a game is in session
         addTarget(targetGame, targetCanvas);
@@ -144,10 +151,20 @@ public class GameController {
         tableViewStatValue.setCellValueFactory(new PropertyValueFactory<StatNameValue, String>(StatNameValue.COLUMN_VALUE_TITLE));
         gameStatTableView.getColumns().set(0,  tableViewStatName);
         gameStatTableView.getColumns().set(1,  tableViewStatValue);
-        playersOnLineVbox.setVisible(true);
         
+        //Players Online Added , may need improvements
+        playersOnLineVbox.setVisible(true);
+        String msg = statusBroadCaster.getStatusMessage();
+        ObservableList<String> iPaddress = FXCollections.observableArrayList(msg );
+        list = new ListView<String>();
+        list.setItems(iPaddress);
+        playersOnLineVbox.setVgrow(list, Priority.ALWAYS);
+        playersOnLineVbox.getChildren().addAll(list);
+      
+      
         targetGame.getGameStatistics().setNumOfTargetsMade(
         		targetGame.getGameStatistics().getNumOfTargetsMade()+1);
+        
         gameStatTableView.setItems(targetGame.getGameStatistics().toObservableList());
         
         
@@ -174,35 +191,24 @@ public class GameController {
         fileChooser.setTitle("Open Resource File");
         File saveFile = fileChooser.showOpenDialog(stage);
         
-       
-        
-        Scanner copy = new Scanner(saveFile);
+       Scanner copy = new Scanner(saveFile);
         String store = copy.nextLine();
-        // printing for testing purpose, will delete later
-        System.out.println(store);
         String[] staticsload = store.split("\t");
        
-        
         /*(numOfTargetsShot -> numOfShotsFired -> numOfTargetsMade -> 
         * numOfRoundsWon -> numOfRoundsPlayed -> accuracy)
         */
         this.newGame(event);
-        
-        //need help ??
-        //LOGGER.debug("staticsload[0]: " + staticsload[0]);
-        targetGame.getGameStatistics().setNumOfTargetsShot(Integer.parseInt(staticsload[0]));
+       targetGame.getGameStatistics().setNumOfTargetsShot(Integer.parseInt(staticsload[0]));
        targetGame.getGameStatistics().setNumOfShotsFired(Integer.parseInt(staticsload[1]));
        targetGame.getGameStatistics().setNumOfTargetsMade(Integer.parseInt(staticsload[2]));
        targetGame.getGameStatistics().setNumOfRoundsWon(Integer.parseInt(staticsload[3]));        
        targetGame.getGameStatistics().setNumOfRoundsPlayed(Integer.parseInt(staticsload[4]));
-        targetGame.getGameStatistics().setAccuracy(Double.parseDouble(staticsload[5]));  
+       targetGame.getGameStatistics().setAccuracy(Double.parseDouble(staticsload[5]));  
         
-        gameStatTableView.setItems(targetGame.getGameStatistics().toObservableList());
+       gameStatTableView.setItems(targetGame.getGameStatistics().toObservableList());
         
-      
-       
-        
-     }
+    }
 
     @FXML
     void saveTheGame(ActionEvent event) throws FileNotFoundException, IOException  {

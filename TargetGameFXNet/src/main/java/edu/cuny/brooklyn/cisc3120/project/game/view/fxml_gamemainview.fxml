@@ -78,7 +78,7 @@
                   <Font size="18.0" />
                </font>
             </Label>
-            <ListView maxHeight="Infinity" prefWidth="200.0" />
+            <ListView  maxHeight="Infinity" prefWidth="200.0" />
          </children>
       </VBox>
    </children>
